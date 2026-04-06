@@ -1,0 +1,4 @@
+repository "TheFishGame/TheFishGame@2474489932168@cloud"
+  path "/"
+    br "/main"
+    co "/main"
