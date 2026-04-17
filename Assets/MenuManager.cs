@@ -6,12 +6,17 @@ public class MenuManager : MonoBehaviour
     
     public void StartGame()
     {
-        SceneManager.LoadScene("MainScene");
+        SceneManager.LoadScene("DifficultyScreen");
     }
 
     public void Credits()
     {
-        SceneManager.LoadScene("Credits");
+        SceneManager.LoadScene("CreditsScreen");
+    }
+
+    public void BackToMenu()
+    {
+        SceneManager.LoadScene("TitleScreen");
     }
 
     public void QuitGame()
