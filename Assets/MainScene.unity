@@ -44016,8 +44016,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: be9d922504f17a0489cf96893282e918, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
-  scoreLabel: {fileID: 0}
-  timerLabel: {fileID: 0}
+  scoreLabel: {fileID: 853939534}
+  timerLabel: {fileID: 1967352821}
 --- !u!4 &1410904769
 Transform:
   m_ObjectHideFlags: 0

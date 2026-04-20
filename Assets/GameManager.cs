@@ -6,6 +6,9 @@ public class gameManager : MonoBehaviour
     private int score = 0;
     private float timer = 120f;
 
+    private bool QTEActive = false;
+    private float QTETimeLimit = 2f;
+    private bool QTEFail = false;
     public TMP_Text scoreLabel;
     public TMP_Text timerLabel;
 
@@ -49,5 +52,47 @@ public class gameManager : MonoBehaviour
     {
         timer = time;
         timerLabel.text = "Time: " + Mathf.CeilToInt(timer);
+    }
+
+    public void MashQTE()
+    {
+        if (QTEActive)
+        {
+            //QTEStartTime = Time.time;
+            //NumberOfPresses = 0;
+            //PressesRequired = 20; // Example threshold
+            
+            QTEFail = false; // Player succeeded by mashing
+        }
+    }
+
+    public void MultiQTE()
+    {
+        if (QTEActive)
+        {
+            QTEFail = true; // Player failed by pressing the wrong button
+        }
+    }
+
+    public void StartQTE()
+    {
+        QTEActive = true;
+        QTEFail = false;
+        Invoke("EndQTE", QTETimeLimit);
+    }
+
+    public void EndQTE()
+    {
+        QTEActive = false;
+        if (QTEFail)
+        {
+            Debug.Log("QTE Failed!");
+            // Handle failure consequences here
+        }
+        else
+        {
+            Debug.Log("QTE Succeeded!");
+            // Handle success rewards here
+        }
     }
 }
