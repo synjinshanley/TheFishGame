@@ -9,6 +9,11 @@ public class MenuManager : MonoBehaviour
         SceneManager.LoadScene("DifficultyScreen");
     }
 
+    public void LoadGame()
+    {
+        SceneManager.LoadScene("MainScene");
+    }
+
     public void Credits()
     {
         SceneManager.LoadScene("CreditsScreen");
