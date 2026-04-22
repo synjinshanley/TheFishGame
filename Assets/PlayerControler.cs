@@ -66,7 +66,10 @@ public class PlayerController : MonoBehaviour
     {
         if (value.isPressed)
         {
-            _animator.SetTrigger("fishTrigger");
+            if (Random.value < 0.5f)
+                gameManager.instance.StartMashQTE();
+            else
+                gameManager.instance.StartMultiQTE();
         }
     }
  
