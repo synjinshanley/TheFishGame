@@ -1,16 +1,17 @@
 using UnityEngine;
 using TMPro;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
 
 public class gameManager : MonoBehaviour
 {
     private int score = 0;
-    private float timer = 120f;
+    private float timer = 20f;
 
     // --- QTE State ---
     public enum QTEType { None, Mash, Multi }
     private QTEType activeQTE = QTEType.None;
-    
+
     private float QTETimer = 0f;
 
     // Mash QTE
@@ -27,6 +28,10 @@ public class gameManager : MonoBehaviour
     public TMP_Text controlsLabel;
     public TMP_Text QTELabel_Mash;
     public TMP_Text QTELabel_Multi;
+    public TMP_Text endGameLabel;
+    public Button nextButton;
+    public Button quitButton;
+    public bool isGameOver = false;
 
     public static gameManager instance;
 
@@ -43,8 +48,15 @@ public class gameManager : MonoBehaviour
         QTELabel_Mash = GameObject.Find("QTE_Mash").GetComponent<TMP_Text>();
         QTELabel_Multi = GameObject.Find("QTE_Multi").GetComponent<TMP_Text>();
 
+        endGameLabel = GameObject.Find("EndCard").GetComponent<TMP_Text>();
+        nextButton = GameObject.Find("NextButton").GetComponent<Button>();
+        quitButton = GameObject.Find("QuitButton").GetComponent<Button>();
+
+        endGameLabel.gameObject.SetActive(false);
+        nextButton.gameObject.SetActive(false);
+        quitButton.gameObject.SetActive(false);
+
         HideQTELabels();
-        StartMashQTE(); // Start with a test QTE for demonstration
     }
 
     void Update()
@@ -56,7 +68,7 @@ public class gameManager : MonoBehaviour
             if (timer <= 0)
             {
                 timer = 0;
-                // TODO: Handle end of game
+                EndGame();
             }
             UpdateTimer(timer);
         }
@@ -103,6 +115,20 @@ public class gameManager : MonoBehaviour
             if (QTETimer <= 0)
                 EndQTE(false);
         }
+    }
+
+    void EndGame()
+    {
+        isGameOver = true;
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+        endGameLabel.gameObject.SetActive(true);
+        nextButton.gameObject.SetActive(true);
+        quitButton.gameObject.SetActive(true);
+        endGameLabel.text = $"Time's Up!\nFinal Score: {score}\nThanks for playing!";
+        scoreLabel.gameObject.SetActive(false);
+        timerLabel.gameObject.SetActive(false);
+        controlsLabel.gameObject.SetActive(false);
     }
 
     // --- QTE Control ---

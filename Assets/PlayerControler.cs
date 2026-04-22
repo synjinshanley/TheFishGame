@@ -64,7 +64,7 @@ public class PlayerController : MonoBehaviour
  
     void OnFish(InputValue value)
     {
-        if (value.isPressed)
+        if (value.isPressed && gameManager.instance.isGameOver == false)
         {
             if (Random.value < 0.5f)
                 gameManager.instance.StartMashQTE();
