@@ -9,8 +9,21 @@ public class MenuManager : MonoBehaviour
         SceneManager.LoadScene("DifficultyScreen");
     }
 
-    public void LoadGame()
+    public void LoadEasy()
     {
+        GameSettings.CurrentDifficulty = GameSettings.Difficulty.Easy;
+        SceneManager.LoadScene("MainScene");
+    }
+
+    public void LoadMedium()
+    {
+        GameSettings.CurrentDifficulty = GameSettings.Difficulty.Medium;
+        SceneManager.LoadScene("MainScene");
+    }
+
+    public void LoadHard()
+    {
+        GameSettings.CurrentDifficulty = GameSettings.Difficulty.Hard;
         SceneManager.LoadScene("MainScene");
     }
 

@@ -56,11 +56,13 @@ public class PlayerController : MonoBehaviour
     }
  
     void OnLook(InputValue value)
-    {
-        Vector2 delta = value.Get<Vector2>();
-        _yRotation += delta.x * rotateSpeed;
-        transform.rotation = Quaternion.Euler(0f, _yRotation, 0f);
-    }
+{
+    if (gameManager.instance.isGameOver) return; // don't rotate or re-lock
+
+    Vector2 delta = value.Get<Vector2>();
+    _yRotation += delta.x * rotateSpeed;
+    transform.rotation = Quaternion.Euler(0f, _yRotation, 0f);
+}
  
     void OnFish(InputValue value)
     {

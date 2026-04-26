@@ -31,6 +31,7 @@ public class gameManager : MonoBehaviour
     public TMP_Text endGameLabel;
     public Button nextButton;
     public Button quitButton;
+    public PlayerController player;
     public bool isGameOver = false;
 
     public static gameManager instance;
@@ -47,6 +48,8 @@ public class gameManager : MonoBehaviour
 
         QTELabel_Mash = GameObject.Find("QTE_Mash").GetComponent<TMP_Text>();
         QTELabel_Multi = GameObject.Find("QTE_Multi").GetComponent<TMP_Text>();
+
+        player = GameObject.FindWithTag("Player").GetComponent<PlayerController>();
 
         endGameLabel = GameObject.Find("EndCard").GetComponent<TMP_Text>();
         nextButton = GameObject.Find("NextButton").GetComponent<Button>();
@@ -122,10 +125,14 @@ public class gameManager : MonoBehaviour
         isGameOver = true;
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
+
+        // Disable player input so it can't re-lock the cursor
+        if (player != null) player.enabled = false;
+
         endGameLabel.gameObject.SetActive(true);
         nextButton.gameObject.SetActive(true);
         quitButton.gameObject.SetActive(true);
-        endGameLabel.text = $"Time's Up!\nFinal Score: {score}\nThanks for playing!";
+        endGameLabel.text = $"Time's Up!\nFinal Score: {score}";
         scoreLabel.gameObject.SetActive(false);
         timerLabel.gameObject.SetActive(false);
         controlsLabel.gameObject.SetActive(false);
@@ -135,8 +142,10 @@ public class gameManager : MonoBehaviour
 
     public void StartMashQTE()
     {
+        if (activeQTE != QTEType.None) return;
+        
         activeQTE = QTEType.Mash;
-        QTETimer = 3f;
+        QTETimer = GameSettings.GetMashTime(); // <-- was 3f
         mashCount = 0;
         QTELabel_Mash.gameObject.SetActive(true);
         QTELabel_Mash.text = $"MASH [Space]! 0/{mashTarget}";
@@ -144,8 +153,10 @@ public class gameManager : MonoBehaviour
 
     public void StartMultiQTE()
     {
+        if (activeQTE != QTEType.None) return;
+
         activeQTE = QTEType.Multi;
-        QTETimer = 4f; // slightly longer for multi-step
+        QTETimer = GameSettings.GetMultiTime(); // <-- was 4f
         sequenceIndex = 0;
 
         // Build a sequence of 4 random keys (no repeats back-to-back)
