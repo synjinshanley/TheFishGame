@@ -68,7 +68,11 @@ public class PlayerController : MonoBehaviour
         Vector2 delta = value.Get<Vector2>();
         _yRotation += delta.x * rotateSpeed;
         _rb.MoveRotation(Quaternion.Euler(0f, _yRotation, 0f));
+
+        if (gameManager.instance.isGameOver) return; // don't rotate or re-lock
+
     }
+
  
     void OnFish(InputValue value)
     {
