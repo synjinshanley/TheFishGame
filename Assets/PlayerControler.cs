@@ -5,9 +5,10 @@ using UnityEngine.InputSystem;
 public class PlayerController : MonoBehaviour
 {
     [SerializeField] private float moveSpeed    = 5f;
-    [SerializeField] private float rotateSpeed  = 0.15f;  // tune this down if too sensitive
+    [SerializeField] private float rotateSpeed  = 0.5f;  // tune this down if too sensitive
     [SerializeField] private float groundCheckRadius = 0.3f;   // match your capsule width
     [SerializeField] private float groundCheckDistance = 0.1f; // how far below feet to check
+    [SerializeField] private float jumpForce = 1.0f; 
     [SerializeField] private LayerMask groundLayer;   
 
     private Animator  _animator;
@@ -51,15 +52,22 @@ public class PlayerController : MonoBehaviour
     void OnMove(InputValue value)
     {
         _moveInput = value.Get<Vector2>();
-        _animator.SetBool("isRunning", _moveInput.sqrMagnitude > 0.01f);
-        _animator.SetFloat("speed", _moveInput.magnitude);
+    }
+
+    void OnJump(InputValue value)
+    {
+        Debug.Log($"Grounded?: {IsGrounded()}");
+        if (IsGrounded())
+        {
+            _rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+        }
     }
  
     void OnLook(InputValue value)
     {
         Vector2 delta = value.Get<Vector2>();
         _yRotation += delta.x * rotateSpeed;
-        transform.rotation = Quaternion.Euler(0f, _yRotation, 0f);
+        _rb.MoveRotation(Quaternion.Euler(0f, _yRotation, 0f));
     }
  
     void OnFish(InputValue value)
