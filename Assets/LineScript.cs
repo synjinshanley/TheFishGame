@@ -5,7 +5,6 @@ public class LineBetweenObjects : MonoBehaviour
     [SerializeField] private Transform pointA;
     [SerializeField] private Transform pointB;
     [SerializeField] private LineRenderer lineRenderer;
-    
 
     void Awake()
     {
@@ -15,8 +14,6 @@ public class LineBetweenObjects : MonoBehaviour
         }
 
         lineRenderer.positionCount = 2;
-        lineRenderer.startWidth = 0.05f;
-        lineRenderer.endWidth = 0.05f;
     }
 
     void Update()

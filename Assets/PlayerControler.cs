@@ -9,15 +9,12 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float groundCheckRadius = 0.3f;   // match your capsule width
     [SerializeField] private float groundCheckDistance = 0.1f; // how far below feet to check
     [SerializeField] private float jumpForce = 1.0f; 
-    [SerializeField] private LayerMask groundLayer;     
-    [SerializeField] private Vector3 offset;   
+    [SerializeField] private LayerMask groundLayer;   
 
     private Animator  _animator;
     private Rigidbody _rb;
     private Vector2   _moveInput;
     private float     _yRotation;
-    private PlayerInput playerInput;
-    private Camera playerCamera;
  
 #if UNITY_EDITOR
     void OnDrawGizmos()
@@ -35,8 +32,6 @@ public class PlayerController : MonoBehaviour
         _animator  = GetComponent<Animator>();
         _rb        = GetComponent<Rigidbody>();
         _yRotation = transform.eulerAngles.y;  // start from current rotation
-        playerInput = GetComponent<PlayerInput>();
-        playerCamera = playerInput.camera;
  
  
         // Lock and hide cursor so mouse doesn't leave the window
@@ -88,14 +83,6 @@ public class PlayerController : MonoBehaviour
             else
                 gameManager.instance.StartMultiQTE();
         }
-    }
-
-    void LateUpdate()
-    {
-        Quaternion cameraRotation = Quaternion.Euler(0f, _yRotation + 90, 0f);
-
-        playerCamera.transform.position = _rb.position + cameraRotation * offset;
-        playerCamera.transform.LookAt(_rb.position);
     }
  
     void FixedUpdate()
