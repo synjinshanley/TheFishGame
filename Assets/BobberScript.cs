@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Scripting.APIUpdating;
@@ -12,8 +13,6 @@ public class BobberScript : MonoBehaviour
     UNCAST
     }
 
-    // angle in degrees
-    [SerializeField] private float castAngle = 45;
     [SerializeField] private float bobberCheckRadius = 0.5f;
     [SerializeField] private Rigidbody _rbBobber;
     [SerializeField] private Transform bobberResetPosition;
