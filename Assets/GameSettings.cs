@@ -25,4 +25,15 @@ public static class GameSettings
             _ => 4f
         };
     }
+
+    public static int GetScoreThreshold()
+{
+    return CurrentDifficulty switch
+    {
+        Difficulty.Easy   => 100,
+        Difficulty.Medium => 200,
+        Difficulty.Hard   => 350,
+        _ => 200
+    };
+}
 }

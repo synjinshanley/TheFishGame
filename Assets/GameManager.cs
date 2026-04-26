@@ -30,6 +30,7 @@ public class gameManager : MonoBehaviour
     public TMP_Text QTELabel_Multi;
     public TMP_Text endGameLabel;
     public Button nextButton;
+    public Button retryButton;
     public Button quitButton;
     public PlayerController player;
     public bool isGameOver = false;
@@ -54,10 +55,12 @@ public class gameManager : MonoBehaviour
         endGameLabel = GameObject.Find("EndCard").GetComponent<TMP_Text>();
         nextButton = GameObject.Find("NextButton").GetComponent<Button>();
         quitButton = GameObject.Find("QuitButton").GetComponent<Button>();
+        retryButton = GameObject.Find("RetryButton").GetComponent<Button>();
 
         endGameLabel.gameObject.SetActive(false);
         nextButton.gameObject.SetActive(false);
         quitButton.gameObject.SetActive(false);
+        retryButton.gameObject.SetActive(false);
 
         HideQTELabels();
     }
@@ -129,10 +132,20 @@ public class gameManager : MonoBehaviour
         // Disable player input so it can't re-lock the cursor
         if (player != null) player.enabled = false;
 
+        bool passed = score >= GameSettings.GetScoreThreshold();
+
         endGameLabel.gameObject.SetActive(true);
         nextButton.gameObject.SetActive(true);
         quitButton.gameObject.SetActive(true);
-        endGameLabel.text = $"Time's Up!\nFinal Score: {score}";
+
+        if (passed)
+            endGameLabel.text = $"You passed!\nFinal Score: {score}/{GameSettings.GetScoreThreshold()}";
+        else
+            endGameLabel.text = $"Not enough points!\nFinal Score: {score}/{GameSettings.GetScoreThreshold()}";
+
+        // Optionally hide the next button if they failed
+        nextButton.gameObject.SetActive(passed);
+        retryButton.gameObject.SetActive(!passed);
         scoreLabel.gameObject.SetActive(false);
         timerLabel.gameObject.SetActive(false);
         controlsLabel.gameObject.SetActive(false);
@@ -143,7 +156,7 @@ public class gameManager : MonoBehaviour
     public void StartMashQTE()
     {
         if (activeQTE != QTEType.None) return;
-        
+
         activeQTE = QTEType.Mash;
         QTETimer = GameSettings.GetMashTime(); // <-- was 3f
         mashCount = 0;
