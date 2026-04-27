@@ -11,6 +11,7 @@ public class FishAI : MonoBehaviour
 
     private NavMeshAgent nav;
     private GameObject fishing_bobber;
+
     private int currentLocation = 0;
     private bool isWaiting = false; // ✅ flag to prevent coroutine spam
 
@@ -43,11 +44,11 @@ public class FishAI : MonoBehaviour
             ? Vector3.Distance(transform.position, fishing_bobber.transform.position)
             : float.MaxValue;
 
-        if (distance < 1f)
+        if (distance < 2f)
         {
             StartHooked();
         }
-        else if (distance < 2f)
+        else if (distance < 4f)
         {
             StartInterest();
         }
@@ -104,6 +105,8 @@ public class FishAI : MonoBehaviour
     {
         if (state == State.HOOKED) return;
         SetState(State.HOOKED);
+        nav.speed = 0f;
+        gameManager.instance.TriggerQTE(gameObject);
         nav.ResetPath();
     }
 
@@ -114,7 +117,8 @@ public class FishAI : MonoBehaviour
 
     bool CloseToTarget(GameObject target)
     {
-        return Vector3.Distance(transform.position, target.transform.position) < 0.5f;
+        //DEBUG.Log($"Distance to {target.name}: {Vector3.Distance(transform.position, target.transform.position)}");
+        return Vector3.Distance(transform.position, target.transform.position) < 1f;
     }
 
     void OnDrawGizmos()

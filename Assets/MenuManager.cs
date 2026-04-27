@@ -32,6 +32,19 @@ public class MenuManager : MonoBehaviour
         SceneManager.LoadScene("MainScene");
     }
 
+    public void LoadNextLevel()
+    {
+        if (GameSettings.CurrentLevel == GameSettings.Level.One)
+        {
+            GameSettings.CurrentLevel = GameSettings.Level.Two;
+        }
+        else if (GameSettings.CurrentLevel == GameSettings.Level.Two)
+        {
+            GameSettings.CurrentLevel = GameSettings.Level.Three;
+        }
+        SceneManager.LoadScene("MainScene");
+    }
+
     public void Credits()
     {
         SceneManager.LoadScene("CreditsScreen");

@@ -6,7 +6,7 @@ using UnityEngine.UI;
 public class gameManager : MonoBehaviour
 {
     private int score = 0;
-    private float timer = 20f;
+    private float timer = 60f;
 
     // --- QTE State ---
     public enum QTEType { None, Mash, Multi }
@@ -37,11 +37,23 @@ public class gameManager : MonoBehaviour
 
     public static gameManager instance;
 
+    public Transform spawnTarget1;
+    public Transform spawnTarget2;
+    public Transform spawnTarget3;
+    public Transform spawnTarget4;
+    public Transform spawnTarget5;
+
+    private GameObject hookedFish;
+    private BobberScript bobberScript;
+
+    [SerializeField] private GameObject fishPrefab; // assign in inspector
+
+
     void Awake()
     {
         instance = this;
         scoreLabel = GameObject.Find("Score").GetComponent<TMP_Text>();
-        scoreLabel.text = "Score: 0";
+        scoreLabel.text = "Score: 0\nLevel: " + GameSettings.GetLevel() + "\nTarget: " + (GameSettings.GetScoreThreshold() + GameSettings.GetLevelThreshold());
         timerLabel = GameObject.Find("Timer").GetComponent<TMP_Text>();
         timerLabel.text = "Time: 120";
         controlsLabel = GameObject.Find("Controls").GetComponent<TMP_Text>();
@@ -51,6 +63,7 @@ public class gameManager : MonoBehaviour
         QTELabel_Multi = GameObject.Find("QTE_Multi").GetComponent<TMP_Text>();
 
         player = GameObject.FindWithTag("Player").GetComponent<PlayerController>();
+        bobberScript = GameObject.FindWithTag("Player").GetComponent<BobberScript>();
 
         endGameLabel = GameObject.Find("EndCard").GetComponent<TMP_Text>();
         nextButton = GameObject.Find("NextButton").GetComponent<Button>();
@@ -63,6 +76,25 @@ public class gameManager : MonoBehaviour
         retryButton.gameObject.SetActive(false);
 
         HideQTELabels();
+    }
+
+    void Start()
+    {   
+        for (int i = 0; i < 5; i++) {
+            Instantiate(fishPrefab, spawnTarget1.position, spawnTarget1.rotation);
+        }
+        for (int i = 0; i < 5; i++) {
+            Instantiate(fishPrefab, spawnTarget2.position, spawnTarget2.rotation);
+        }
+        for (int i = 0; i < 5; i++) {
+            Instantiate(fishPrefab, spawnTarget3.position, spawnTarget3.rotation);
+        }
+        for (int i = 0; i < 5; i++) {
+            Instantiate(fishPrefab, spawnTarget4.position, spawnTarget4.rotation);
+        }
+        for (int i = 0; i < 5; i++) {
+            Instantiate(fishPrefab, spawnTarget5.position, spawnTarget5.rotation);
+        }
     }
 
     void Update()
@@ -132,16 +164,16 @@ public class gameManager : MonoBehaviour
         // Disable player input so it can't re-lock the cursor
         if (player != null) player.enabled = false;
 
-        bool passed = score >= GameSettings.GetScoreThreshold();
+        bool passed = score >= (GameSettings.GetScoreThreshold() + GameSettings.GetLevelThreshold());
 
         endGameLabel.gameObject.SetActive(true);
         nextButton.gameObject.SetActive(true);
         quitButton.gameObject.SetActive(true);
 
         if (passed)
-            endGameLabel.text = $"You passed!\nFinal Score: {score}/{GameSettings.GetScoreThreshold()}";
+            endGameLabel.text = $"You passed!\nFinal Score: {score}/{GameSettings.GetScoreThreshold() + GameSettings.GetLevelThreshold()}";
         else
-            endGameLabel.text = $"Not enough points!\nFinal Score: {score}/{GameSettings.GetScoreThreshold()}";
+            endGameLabel.text = $"Not enough points!\nFinal Score: {score}/{GameSettings.GetScoreThreshold() + GameSettings.GetLevelThreshold()}";
 
         // Optionally hide the next button if they failed
         nextButton.gameObject.SetActive(passed);
@@ -152,6 +184,18 @@ public class gameManager : MonoBehaviour
     }
 
     // --- QTE Control ---
+
+    public void TriggerQTE(GameObject fish)
+    {
+        if (activeQTE != QTEType.None) return;
+        hookedFish = fish;
+
+        // Randomly choose a QTE type
+        if (Random.value < 0.5f)
+            StartMashQTE();
+        else
+            StartMultiQTE();
+    }
 
     public void StartMashQTE()
     {
@@ -210,12 +254,15 @@ public class gameManager : MonoBehaviour
         {
             Debug.Log("QTE Succeeded!");
             AddScore(50);
-            // TODO: e.g. reel in the fish faster
+            Destroy(hookedFish); // ✅ delete the fish
+            hookedFish = null;
+            bobberScript.resetBobber(); // reset bobber so player can cast again
         }
         else
         {
             Debug.Log("QTE Failed!");
-            // TODO: e.g. fish escapes, lose the catch
+            hookedFish = null;
+            bobberScript.resetBobber(); // reset bobber so player can cast again
         }
     }
 
