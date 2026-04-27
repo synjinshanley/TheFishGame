@@ -277,7 +277,7 @@ public class gameManager : MonoBehaviour
     public void AddScore(int points)
     {
         score += points;
-        scoreLabel.text = "Score: " + score;
+        scoreLabel.text = "Score: " + score + "\nLevel: " + GameSettings.GetLevel() + "\nTarget: " + (GameSettings.GetScoreThreshold() + GameSettings.GetLevelThreshold());
     }
 
     public void UpdateTimer(float time)

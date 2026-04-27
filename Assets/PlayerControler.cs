@@ -1,3 +1,4 @@
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
  
@@ -5,16 +6,20 @@ using UnityEngine.InputSystem;
 public class PlayerController : MonoBehaviour
 {
     [SerializeField] private float moveSpeed    = 5f;
-    [SerializeField] private float rotateSpeed  = 0.15f;  // tune this down if too sensitive
+    [SerializeField] private float rotateSpeed  = 0.5f;  // tune this down if too sensitive
     [SerializeField] private float groundCheckRadius = 0.3f;   // match your capsule width
     [SerializeField] private float groundCheckDistance = 0.1f; // how far below feet to check
-    [SerializeField] private float jumpForce = 5.1f; // adjust based on mass and desired
+    [SerializeField] private float jumpForce = 1.0f; 
     [SerializeField] private LayerMask groundLayer;   
+    [SerializeField] private LayerMask waterLayer;
 
     private Animator  _animator;
     private Rigidbody _rb;
     private Vector2   _moveInput;
     private float     _yRotation;
+    private bool _in_water = false;
+    private Vector3 _last_land_pos;
+    
  
 #if UNITY_EDITOR
     void OnDrawGizmos()
@@ -37,7 +42,9 @@ public class PlayerController : MonoBehaviour
         // Lock and hide cursor so mouse doesn't leave the window
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible   = false;
-        groundLayer = LayerMask.GetMask("Ground");    }
+        groundLayer = LayerMask.GetMask("Ground");
+        _last_land_pos = _rb.position;
+                    }
  
  
     private bool IsGrounded()
@@ -48,6 +55,24 @@ public class PlayerController : MonoBehaviour
         return Physics.CheckSphere(feetPosition, groundCheckRadius, groundLayer) ||
                Physics.Raycast(transform.position, Vector3.down, groundCheckDistance + 1.0f, groundLayer);
     }
+
+    // if touches water move it 0.5 units oposite of _moveInput
+    private void OnCollisionStay(Collision collision)
+    {
+        if (gameObject.CompareTag("Player") && ((waterLayer.value & (1 << collision.gameObject.layer)) != 0))
+        {
+
+            Debug.Log("touched water");
+            _in_water = true;
+            
+        } else if (gameObject.CompareTag("Player") && ((groundLayer.value & (1 << collision.gameObject.layer)) != 0))
+        {
+            _last_land_pos = _rb.position;
+        }
+
+
+    }
+
  
     void OnMove(InputValue value)
     {
@@ -65,22 +90,33 @@ public class PlayerController : MonoBehaviour
  
     void OnLook(InputValue value)
     {
-        if (gameManager.instance.isGameOver) return; // don't rotate or re-lock
-
         Vector2 delta = value.Get<Vector2>();
         _yRotation += delta.x * rotateSpeed;
         _rb.MoveRotation(Quaternion.Euler(0f, _yRotation, 0f));
+
+        if (gameManager.instance.isGameOver) return; // don't rotate or re-lock
+
     }
+    
  
     void FixedUpdate()
     {
+                    
+        // Move relative to where the player is facing
+        Vector3 move = transform.TransformDirection(
+            new Vector3(_moveInput.x, 0f, _moveInput.y).normalized
+        );
+
         if (_moveInput.sqrMagnitude > 0.01f)
         {
-            // Move relative to where the player is facing
-            Vector3 move = transform.TransformDirection(
-                new Vector3(_moveInput.x, 0f, _moveInput.y).normalized
-            );
+
             _rb.MovePosition(transform.position + move * moveSpeed * Time.fixedDeltaTime);
         }
+
+        if (_in_water)
+        {
+            _rb.MovePosition(_last_land_pos);
+        }
+        _in_water = false;
     }
 }
