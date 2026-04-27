@@ -1,3 +1,4 @@
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
  
@@ -10,11 +11,15 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float groundCheckDistance = 0.1f; // how far below feet to check
     [SerializeField] private float jumpForce = 1.0f; 
     [SerializeField] private LayerMask groundLayer;   
+    [SerializeField] private LayerMask waterLayer;
 
     private Animator  _animator;
     private Rigidbody _rb;
     private Vector2   _moveInput;
     private float     _yRotation;
+    private bool _in_water = false;
+    private Vector3 _last_land_pos;
+    
  
 #if UNITY_EDITOR
     void OnDrawGizmos()
@@ -37,7 +42,9 @@ public class PlayerController : MonoBehaviour
         // Lock and hide cursor so mouse doesn't leave the window
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible   = false;
-        groundLayer = LayerMask.GetMask("Ground");    }
+        groundLayer = LayerMask.GetMask("Ground");
+        _last_land_pos = _rb.position;
+                    }
  
  
     private bool IsGrounded()
@@ -48,6 +55,24 @@ public class PlayerController : MonoBehaviour
         return Physics.CheckSphere(feetPosition, groundCheckRadius, groundLayer) ||
                Physics.Raycast(transform.position, Vector3.down, groundCheckDistance + 1.0f, groundLayer);
     }
+
+    // if touches water move it 0.5 units oposite of _moveInput
+    private void OnCollisionStay(Collision collision)
+    {
+        if (gameObject.CompareTag("Player") && ((waterLayer.value & (1 << collision.gameObject.layer)) != 0))
+        {
+
+            Debug.Log("touched water");
+            _in_water = true;
+            
+        } else if (gameObject.CompareTag("Player") && ((groundLayer.value & (1 << collision.gameObject.layer)) != 0))
+        {
+            _last_land_pos = _rb.position;
+        }
+
+
+    }
+
  
     void OnMove(InputValue value)
     {
@@ -87,13 +112,23 @@ public class PlayerController : MonoBehaviour
  
     void FixedUpdate()
     {
+                    
+        // Move relative to where the player is facing
+        Vector3 move = transform.TransformDirection(
+            new Vector3(_moveInput.x, 0f, _moveInput.y).normalized
+        );
+
         if (_moveInput.sqrMagnitude > 0.01f)
         {
-            // Move relative to where the player is facing
-            Vector3 move = transform.TransformDirection(
-                new Vector3(_moveInput.x, 0f, _moveInput.y).normalized
-            );
+
             _rb.MovePosition(transform.position + move * moveSpeed * Time.fixedDeltaTime);
         }
+
+        if (_in_water)
+        {
+            Vector3 new_pos = ((_last_land_pos - _rb.position).normalized + _rb.position);
+            _rb.MovePosition(new_pos);
+        }
+        _in_water = false;
     }
 }
